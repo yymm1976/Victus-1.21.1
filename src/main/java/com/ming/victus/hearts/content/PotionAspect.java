@@ -6,6 +6,8 @@ import com.ming.victus.hearts.OverlaySpriteProvider;
 import net.minecraft.core.Holder;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.Tag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.effect.MobEffectInstance;
@@ -13,6 +15,8 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.alchemy.Potion;
 import net.minecraft.world.item.alchemy.PotionContents;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 public class PotionAspect extends HeartAspect implements OverlaySpriteProvider {
@@ -22,7 +26,7 @@ public class PotionAspect extends HeartAspect implements OverlaySpriteProvider {
     );
 
     private Optional<Holder<Potion>> potion = Optional.empty();
-    private final java.util.List<MobEffectInstance> customEffects = new java.util.ArrayList<>();
+    private final List<MobEffectInstance> customEffects = new ArrayList<>();
 
     public PotionAspect(Player player) {
         super(player, TYPE);
@@ -36,23 +40,32 @@ public class PotionAspect extends HeartAspect implements OverlaySpriteProvider {
         this.potion = potion;
     }
 
-    public java.util.List<MobEffectInstance> getCustomEffects() {
+    public List<MobEffectInstance> getCustomEffects() {
         return this.customEffects;
     }
 
     @Override
     @SuppressWarnings("null")
     public boolean handleBreak(DamageSource source, float damage, float originalHealth) {
+        // 施加基础药水类型的效果
         if (this.potion.isPresent()) {
             for (MobEffectInstance instance : this.potion.get().value().getEffects()) {
-                if (instance.getEffect().value().isInstantenous()) {
-                    instance.getEffect().value().applyInstantenousEffect(this.player, this.player, this.player, instance.getAmplifier(), 1.0D);
-                } else {
-                    this.player.addEffect(new MobEffectInstance(instance));
-                }
+                applyEffect(instance);
             }
         }
+        // 施加自定义效果（来自模组药水或命令添加的额外效果）
+        for (MobEffectInstance instance : this.customEffects) {
+            applyEffect(instance);
+        }
         return false;
+    }
+
+    private void applyEffect(MobEffectInstance instance) {
+        if (instance.getEffect().value().isInstantenous()) {
+            instance.getEffect().value().applyInstantenousEffect(this.player, this.player, this.player, instance.getAmplifier(), 1.0D);
+        } else {
+            this.player.addEffect(new MobEffectInstance(instance));
+        }
     }
 
     @Override
@@ -64,12 +77,33 @@ public class PotionAspect extends HeartAspect implements OverlaySpriteProvider {
         } else {
             this.potion = Optional.empty();
         }
+        // 读取自定义效果列表
+        this.customEffects.clear();
+        if (nbt.contains("CustomEffects", Tag.TAG_LIST)) {
+            ListTag list = nbt.getList("CustomEffects", Tag.TAG_COMPOUND);
+            for (int i = 0; i < list.size(); i++) {
+                CompoundTag effectTag = list.getCompound(i);
+                MobEffectInstance effect = MobEffectInstance.load(effectTag);
+                if (effect != null) {
+                    this.customEffects.add(effect);
+                }
+            }
+        }
     }
 
     @Override
     @SuppressWarnings("null")
     protected void writeCustomData(CompoundTag nbt) {
         nbt.putString("Potion", this.potion.flatMap(Holder::unwrapKey).map(key -> key.location().toString()).orElse("minecraft:empty"));
+        // 写入自定义效果列表
+        if (!this.customEffects.isEmpty()) {
+            ListTag list = new ListTag();
+            for (MobEffectInstance effect : this.customEffects) {
+                // 1.21.x 中 save() 不再接受参数，直接返回 CompoundTag
+                list.add(effect.save());
+            }
+            nbt.put("CustomEffects", list);
+        }
     }
 
     @Override
