@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "sss",
+    "sus",
+    "sss"
+  ],
+  "key": {
+    "s": {
+      "item": "minecraft:diamond"
+    },
+    "u": {
+      "item": "victus:blank_heart_aspect"
+    }
+  },
+  "result": { "id": "victus:diamond_heart_aspect"
+  }
+}
+
+

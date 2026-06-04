@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "sbs",
+    "b b",
+    "sbs"
+  ],
+  "key": {
+    "s": {
+      "item": "minecraft:bone_meal"
+    },
+    "b": {
+      "item": "minecraft:apple"
+    }
+  },
+  "result": {
+    "id": "victus:broken_heart"
+  }
+}

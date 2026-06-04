@@ -1,0 +1,26 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "hsn",
+    "sus",
+    "nsh"
+  ],
+  "key": {
+    "s": {
+      "item": "minecraft:glow_ink_sac"
+    },
+    "u": {
+      "item": "victus:blank_heart_aspect"
+    },
+    "h": {
+      "item": "minecraft:heart_of_the_sea"
+    },
+    "n": {
+      "item": "minecraft:nautilus_shell"
+    }
+  },
+  "result": { "id": "victus:ocean_heart_aspect"
+  }
+}
+
+
