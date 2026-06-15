@@ -32,7 +32,9 @@ public abstract class EdibleItem extends Item {
         if (!level.isClientSide() && livingEntity instanceof Player player) {
             onEaten(stack, level, player);
         }
-        return super.finishUsingItem(stack, level, livingEntity);
+        // 不调 super：子类 onEaten 已负责所有消耗逻辑；
+        // Item 默认实现会对 FoodProperties 的物品触发 player.eat()，导致重复消耗
+        return stack;
     }
 
     @Override

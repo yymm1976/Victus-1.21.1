@@ -247,12 +247,18 @@ public class VictusEvents {
         Player player = event.getEntity();
         PlayerHeartCapability cap = VictusAttachments.getHearts(player);
         if (cap != null) {
+            // 客户端也推进本地 cooldown，使 HUD 充能进度条平滑显示；
+            // 服务端为权威方，并在关键节点（充满/加速）通过 SyncAspectsPacket 纠偏
             cap.tick();
 
             if (!player.level().isClientSide()) {
                 updateDiamondArmorModifiers(player, cap);
-                updateIronGolemTargeting(player, cap);
-                updateVexTargeting(player, cap);
+                // 召唤物目标更新涉及附近实体扫描（热路径），降频到每 10 tick 一次，
+                // 减少多人/多召唤物场景下的性能压力；目标重定向延迟 ≤0.5s 可接受
+                if (player.tickCount % 10 == 0) {
+                    updateIronGolemTargeting(player, cap);
+                    updateVexTargeting(player, cap);
+                }
             }
         }
     }
