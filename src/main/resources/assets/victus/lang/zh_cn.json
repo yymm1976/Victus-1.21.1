@@ -1,10 +1,10 @@
 {
   "item.victus.blank_heart_aspect": "空白之心",
   "item.victus.broken_heart": "破碎之心",
+  "item.victus.broken_heart.description": "吃下时返还所有已食用的心并造成伤害",
   "item.victus.void_heart_aspect": "虚空之心",
   "item.victus.void_heart_aspect.description": "吃下时会消除最右侧的心",
 
-  "victus.aspect_item_prefix": "",
   "item.victus.bundle_heart_aspect": "收纳之心",
   "item.victus.bundle_heart_aspect.description": "破碎时恢复2颗心。",
   "item.victus.creeper_heart_aspect": "苦力怕之心",
@@ -23,7 +23,6 @@
   "item.victus.potion_heart_aspect.description": "饮下药水时将其存储，破碎时释放储存的药水效果。",
   "item.victus.emerald_heart_aspect": "绿宝石之心",
   "item.victus.emerald_heart_aspect.description": "破碎时加快其它心的充能速度。",
-  "item.victus.broken_heart.description": "吃下时会返还所有已食用的心",
   "item.victus.archery_heart_aspect": "箭术之心",
   "item.victus.archery_heart_aspect.description": "破碎时向附近发射5根带有击退效果的瞬间伤害药水箭。",
   "item.victus.blazing_heart_aspect": "烈焰之心",
@@ -31,7 +30,7 @@
   "item.victus.draconic_heart_aspect": "巨龙之心",
   "item.victus.draconic_heart_aspect.description": "破碎时在原地生成不会伤害你的龙息滞留云。",
   "item.victus.evoking_heart_aspect": "唤魔之心",
-  "item.victus.evoking_heart_aspect.description": "破碎时召唤一个持剑恼鬼为你作战。",
+  "item.victus.evoking_heart_aspect.description": "破碎时召唤三个持剑恼鬼为你作战。",
   "item.victus.golden_heart_aspect": "黄金之心",
   "item.victus.golden_heart_aspect.description": "破碎时提供伤害吸收效果。",
   "item.victus.icy_heart_aspect": "冰霜之心",
@@ -51,6 +50,7 @@
   "item.minecraft.lingering_potion.effect.bleeding_heart": "滞留型碎心药水",
 
   "text.victus.recharge_duration": "充能时间: %1$.1fs",
+  "message.victus.potion_aspect_limit": "你已经拥有药水之心了！",
   "itemGroup.victus": "Victus",
   "death.attack.suicide": "%1$s？哎呀"
 }

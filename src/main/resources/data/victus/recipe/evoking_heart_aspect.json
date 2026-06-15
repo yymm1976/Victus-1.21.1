@@ -7,14 +7,14 @@
   ],
   "key": {
     "s": {
-      "item": "minecraft:dragon_breath"
+      "item": "minecraft:totem_of_undying"
     },
     "u": {
       "item": "victus:blank_heart_aspect"
     },
     "t": {
-      "item": "minecraft:end_stone"
+      "item": "minecraft:emerald"
     }
   },
-  "result": { "id": "victus:draconic_heart_aspect" }
+  "result": { "id": "victus:evoking_heart_aspect" }
 }

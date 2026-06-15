@@ -10,7 +10,7 @@ public class VictusHudRenderer {
         int u = (textureIndex % 8) * 8;
         int v = (textureIndex / 8) * 8;
         int width = isHalf ? 4 : 8; // Change width to 8 to better fit
-        context.blit(HeartAspect.HEART_ATLAS_TEXTURE, x + 1, y + 1, u, v, Math.round(rechargeProgress * width), 8, 64, 64);
+        context.blit(HeartAspect.HEART_ATLAS_TEXTURE, x + 1, y + 1, u, v, Math.round(rechargeProgress * width), 8, HeartAspect.ATLAS_SIZE, HeartAspect.ATLAS_SIZE);
     }
 
     public static float getComponent(int rgb, int shift) {

@@ -7,8 +7,6 @@ import com.ming.victus.hearts.HeartAspect;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.player.Player;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
 
 public class EmeraldAspect extends HeartAspect {
     public static final HeartAspect.Type TYPE = new HeartAspect.Type(
@@ -32,6 +30,6 @@ public class EmeraldAspect extends HeartAspect {
             }
             cap.addRechargeBoostTicks(totalRemaining);
         }
-        return true;
+        return false; // 纯服务端效果，无需客户端回调
     }
 }

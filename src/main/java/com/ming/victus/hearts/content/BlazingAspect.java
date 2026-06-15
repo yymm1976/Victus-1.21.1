@@ -2,12 +2,19 @@ package com.ming.victus.hearts.content;
 
 import com.ming.victus.VictusMain;
 import com.ming.victus.hearts.HeartAspect;
+import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.TamableAnimal;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.AABB;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class BlazingAspect extends HeartAspect {
@@ -23,18 +30,20 @@ public class BlazingAspect extends HeartAspect {
     @Override
     @SuppressWarnings("null")
     public boolean handleBreak(DamageSource source, float damage, float originalHealth) {
-        // TODO: VictusParticleEvents.BLAZING_FLAMES.spawn(this.player.level(), this.player.position());
+        // 播放烈焰音效并请求客户端粒子效果
+        this.player.level().playSound(null, this.player.getX(), this.player.getY(), this.player.getZ(),
+            SoundEvents.BLAZE_SHOOT, SoundSource.PLAYERS, 1.0F, 1.0F);
 
         @SuppressWarnings("null")
         AABB box = this.player.getBoundingBox().inflate(4.0D);
-        List<LivingEntity> entities = this.player.level().getEntitiesOfClass(LivingEntity.class, box, entity -> {
+        // 包装为可变列表，防止 getEntitiesOfClass 返回不可变列表导致 UnsupportedOperationException
+        List<LivingEntity> entities = new ArrayList<>(this.player.level().getEntitiesOfClass(LivingEntity.class, box, entity -> {
             if (entity == this.player) return false;
-            // Simplified check: ignore tamed entities of this player
-            if (entity instanceof net.minecraft.world.entity.TamableAnimal tamable) {
+            if (entity instanceof TamableAnimal tamable) {
                 return !tamable.isOwnedBy(this.player);
             }
             return true;
-        });
+        }));
 
         for (int i = 0; i < 4; i++) {
             if (entities.isEmpty()) return false;
@@ -43,6 +52,21 @@ public class BlazingAspect extends HeartAspect {
             target.igniteForSeconds(4.0F);
         }
 
-        return false;
+        return true;
+    }
+
+    @Override
+    @OnlyIn(Dist.CLIENT)
+    @SuppressWarnings("null")
+    protected void handleBreakClient() {
+        // 在玩家周围生成烈焰粒子，提供破碎视觉反馈
+        net.minecraft.client.Minecraft mc = net.minecraft.client.Minecraft.getInstance();
+        for (int i = 0; i < 30; i++) {
+            mc.level.addParticle(
+                ParticleTypes.FLAME,
+                this.player.getRandomX(1.0D), this.player.getRandomY() + 0.5D, this.player.getRandomZ(1.0D),
+                0.0D, 0.05D, 0.0D
+            );
+        }
     }
 }

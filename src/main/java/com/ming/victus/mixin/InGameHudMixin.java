@@ -16,17 +16,31 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
+/**
+ * ===== Mixin 审计注释 =====
+ *
+ * 目标类: net.minecraft.client.gui.Gui (1.21.1 NeoForge)
+ *
+ * 本 Mixin 注入以下方法，版本升级时需验证其签名是否变化：
+ *
+ * 1. renderHealthLevel(GuiGraphics, CallbackInfo)
+ *    - 用途: 渲染生命值行的入口方法，HEAD 处获取 PlayerHeartCapability，RETURN 处释放。
+ *    - 1.21.1 签名: private void renderHealthLevel(GuiGraphics guiGraphics)
+ *
+ * 2. renderHearts(GuiGraphics, Player, int, int, int, int, float, int, int, int, boolean, CallbackInfo)
+ *    - 用途: TAIL 注入自定义心相渲染，在原版心形之上叠加自定义心相纹理（视觉上覆盖原版心）。
+ *    - 1.21.1 签名: private void renderHearts(GuiGraphics guiGraphics, Player player,
+ *        int x, int y, int height, int offsetHeartIndex, float maxHealth,
+ *        int currentHealth, int displayHealth, int absorptionAmount, boolean renderHighlight)
+ *
+ * 如果 Mojang 在后续版本中重命名或更改上述方法的参数，Mixin 编译将失败，
+ * 届时需更新本注释中的签名信息并调整注入点。
+ */
 @Mixin(net.minecraft.client.gui.Gui.class)
 public abstract class InGameHudMixin {
 
     @Shadow @Final protected Minecraft minecraft;
 
-    @Unique
-    private int heartX;
-    @Unique
-    private int heartY;
-    @Unique
-    private int heartIndex;
     @Unique
     private PlayerHeartCapability aspectComponent = null;
 
@@ -35,23 +49,11 @@ public abstract class InGameHudMixin {
         if (this.minecraft.player != null) {
             this.aspectComponent = VictusAttachments.getHearts(this.minecraft.player);
         }
-        this.heartIndex = 0; // Reset index before rendering
     }
 
     @Inject(method = "renderHealthLevel", at = @At("RETURN"))
     private void releaseAspectComponent(GuiGraphics guiGraphics, CallbackInfo ci) {
         this.aspectComponent = null;
-    }
-
-    @SuppressWarnings("null")
-    @Inject(method = "renderHeart", at = @At("HEAD"))
-    private void captureHeartRender(GuiGraphics guiGraphics, net.minecraft.client.gui.Gui.HeartType type, int x, int y, boolean hardcore, boolean blinking, boolean halfHeart, CallbackInfo ci) {
-        if (this.aspectComponent == null || this.minecraft.level.getLevelData().isHardcore()) return;
-
-        // The renderHeart method is called for each heart. 
-        // We can track the index using heartIndex.
-        // Wait, renderHeart is called multiple times per heart (background, then foreground).
-        // Let's just use heartIndex to keep track.
     }
 
     @SuppressWarnings("null")
@@ -63,19 +65,19 @@ public abstract class InGameHudMixin {
         int absorptionHearts = net.minecraft.util.Mth.ceil(absorptionAmount / 2.0F);
         int totalHearts = healthHearts + absorptionHearts;
 
-        // Add 1 extra heart rendering pass if expectedExtraHealth requires it, 
-        // but here we just render what's in the capability.
         int effectiveHearts = this.aspectComponent.effectiveSize();
         if (effectiveHearts > healthHearts) {
             healthHearts = effectiveHearts;
             totalHearts = healthHearts + absorptionHearts;
         }
 
+        // 使用与原版一致的随机种子，确保低血量时心形抖动与原版一致
         net.minecraft.util.RandomSource random = net.minecraft.util.RandomSource.create();
         random.setSeed((long)(this.minecraft.gui.getGuiTicks() * 312871));
 
         int healthForShake = net.minecraft.util.Mth.ceil(Math.max((float)currentHealth, (float)displayHealth));
 
+        // 消耗吸收心部分的随机数序列，使其不影响后续健康心的抖动
         for (int i = totalHearts - 1; i >= healthHearts; --i) {
             if (healthForShake <= 4) {
                 random.nextInt(2);
@@ -87,7 +89,7 @@ public abstract class InGameHudMixin {
 
             int heartX = x + i % 10 * 8;
             int heartY = y - (i / 10) * height;
-            
+
             if (healthForShake <= 4) {
                 heartY += random.nextInt(2);
             }
@@ -119,12 +121,11 @@ public abstract class InGameHudMixin {
                         VictusHudRenderer.getComponent(overlayProvider.getOverlayTint(), 0),
                         1f
                     );
-                    
+
                     VictusHudRenderer.renderAspect(guiGraphics, heartX, heartY, overlayProvider.getOverlayIndex(), aspect.getRechargeProgress(), isHalf);
                     com.mojang.blaze3d.systems.RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
                 }
             }
         }
     }
-    // Forced modification for gradle to pick up changes
 }

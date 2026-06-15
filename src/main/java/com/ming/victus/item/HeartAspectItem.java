@@ -5,6 +5,7 @@ import com.ming.victus.capability.VictusAttachments;
 import com.ming.victus.hearts.HeartAspect;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TextColor;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.LivingEntity;
@@ -80,9 +81,8 @@ public class HeartAspectItem extends EdibleItem {
         if (!eater.getAbilities().instabuild) {
             stack.shrink(1);
         }
-        if (!level.isClientSide()) {
-            net.minecraft.server.level.ServerLevel serverLevel = (net.minecraft.server.level.ServerLevel) level;
-            serverLevel.sendParticles(net.minecraft.core.particles.ParticleTypes.HEART, 
+        if (level instanceof net.minecraft.server.level.ServerLevel serverLevel) {
+            serverLevel.sendParticles(net.minecraft.core.particles.ParticleTypes.HEART,
                 eater.getX(), eater.getY() + eater.getBbHeight() * 0.5, eater.getZ(), 
                 5, 0.5, 0.5, 0.5, 0.1);
         }
@@ -91,7 +91,8 @@ public class HeartAspectItem extends EdibleItem {
     @Override
     @SuppressWarnings("null")
     public @javax.annotation.Nonnull Component getName(@javax.annotation.Nonnull ItemStack stack) {
-        return Component.translatable(this.getDescriptionId(stack)); // TODO: colored translation
+        return Component.translatable(this.getDescriptionId(stack))
+            .withStyle(style -> style.withColor(TextColor.fromRgb(this.aspectType.color())));
     }
 
     @Override

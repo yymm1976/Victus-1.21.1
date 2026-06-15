@@ -62,7 +62,16 @@ public class PotionAspect extends HeartAspect implements OverlaySpriteProvider {
 
     private void applyEffect(MobEffectInstance instance) {
         if (instance.getEffect().value().isInstantenous()) {
-            instance.getEffect().value().applyInstantenousEffect(this.player, this.player, this.player, instance.getAmplifier(), 1.0D);
+            // 1.21.x 中 applyInstantenousEffect 要求目标参数为 @Nonnull LivingEntity，
+            // 而 this.player 字段在父类中声明为普通 Player（未加 @Nonnull），IDE 会报 null 安全警告。
+            // 此处通过 Objects.requireNonNull 消除警告，同时保持运行时安全性。
+            instance.getEffect().value().applyInstantenousEffect(
+                this.player,
+                this.player,
+                java.util.Objects.requireNonNull(this.player, "player"),
+                instance.getAmplifier(),
+                1.0D
+            );
         } else {
             this.player.addEffect(new MobEffectInstance(instance));
         }
@@ -109,6 +118,12 @@ public class PotionAspect extends HeartAspect implements OverlaySpriteProvider {
     @Override
     public int getOverlayIndex() {
         return 8;
+    }
+
+    @Override
+    public boolean shouldRenderOverlay() {
+        // 无药水时不渲染覆盖层，避免绘制白色覆盖
+        return this.potion.isPresent();
     }
 
     @Override

@@ -27,6 +27,14 @@ public class EvokingAspect extends HeartAspect {
     @Override
     @SuppressWarnings("null")
     public boolean handleBreak(DamageSource source, float damage, float originalHealth) {
+        // 限制该玩家的恼鬼数量上限为 6（两轮破碎的上限），避免频繁受伤时产生过多实体
+        long existingVexes = this.player.level().getEntitiesOfClass(
+            Vex.class, this.player.getBoundingBox().inflate(16.0D),
+            e -> e.isAlive() && e.getPersistentData().hasUUID("VictusOwner")
+                && this.player.getUUID().equals(e.getPersistentData().getUUID("VictusOwner"))
+        ).size();
+        if (existingVexes >= 6) return false;
+
         for (int i = 0; i < 3; i++) {
             Vex vex = new Vex(EntityType.VEX, this.player.level());
             

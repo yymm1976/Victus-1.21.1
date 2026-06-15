@@ -48,7 +48,7 @@ public class VoidAspectItem extends EdibleItem {
                 eater.spawnAtLocation(removed.asItem());
             }
             // 计算移除心相后应扣除的生命值，确保伤害不为负数
-            float targetHealth = (hearts.effectiveSize() + 1) * 2.0F;
+            float targetHealth = hearts.effectiveSize() * 2.0F;
             float damage = Math.max(0.0F, eater.getHealth() + 1.0F - targetHealth);
             if (damage > 0.0F) {
                 eater.hurt(level.damageSources().magic(), damage);
@@ -57,8 +57,7 @@ public class VoidAspectItem extends EdibleItem {
         if (!eater.getAbilities().instabuild) {
             stack.shrink(1);
         }
-        if (!level.isClientSide()) {
-            net.minecraft.server.level.ServerLevel serverLevel = (net.minecraft.server.level.ServerLevel) level;
+        if (level instanceof net.minecraft.server.level.ServerLevel serverLevel) {
             serverLevel.sendParticles(net.minecraft.core.particles.ParticleTypes.SMOKE, 
                 eater.getX(), eater.getY() + eater.getBbHeight() * 0.5, eater.getZ(), 
                 10, 0.5, 0.5, 0.5, 0.05);

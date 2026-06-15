@@ -29,6 +29,8 @@ public class GoldenAspect extends HeartAspect {
         int index = findIndex(aspects);
         if (index == -1) return false;
 
+        // 吸收效果等级取决于黄金之心在心相列表中的索引位置：
+        // 越靠左（索引 0）等级越高（最高 level IV），越靠右等级越低
         float percentage = 1.0F - (index + 0.0F) / (this.player.getMaxHealth() / 2.0F);
         int level = Math.max(0, Math.round(percentage * 5.0F));
 

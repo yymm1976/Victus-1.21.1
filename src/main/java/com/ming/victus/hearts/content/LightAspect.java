@@ -2,7 +2,6 @@ package com.ming.victus.hearts.content;
 
 import com.ming.victus.VictusMain;
 import com.ming.victus.hearts.HeartAspect;
-import net.minecraft.client.Minecraft;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvents;
@@ -34,10 +33,9 @@ public class LightAspect extends HeartAspect {
     @OnlyIn(Dist.CLIENT)
     @SuppressWarnings("null")
     protected void handleBreakClient() {
-        Minecraft.getInstance().particleEngine.createTrackingEmitter(this.player, ParticleTypes.CLOUD, 10);
-        // Simplified particle spawning for now, using vanilla particle engine
+        net.minecraft.client.Minecraft.getInstance().particleEngine.createTrackingEmitter(this.player, ParticleTypes.CLOUD, 10);
         for (int i = 0; i < 40; i++) {
-            Minecraft.getInstance().level.addParticle(
+            net.minecraft.client.Minecraft.getInstance().level.addParticle(
                 ParticleTypes.CLOUD,
                 this.player.getRandomX(1.0D), this.player.getRandomY() + 1.0D, this.player.getRandomZ(1.0D),
                 0.0D, 0.1D, 0.0D

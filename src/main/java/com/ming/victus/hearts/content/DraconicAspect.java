@@ -1,6 +1,7 @@
 package com.ming.victus.hearts.content;
 
 import com.ming.victus.VictusMain;
+import com.ming.victus.entity.VictusEntityTypes;
 import com.ming.victus.hearts.HeartAspect;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.resources.ResourceLocation;
@@ -23,18 +24,22 @@ public class DraconicAspect extends HeartAspect {
     @Override
     @SuppressWarnings("null")
     public boolean handleBreak(DamageSource source, float damage, float originalHealth) {
-        DragonBreathCloud areaEffectCloud = new DragonBreathCloud(this.player.level(), this.player.getX(), this.player.getY(), this.player.getZ());
-        
+        // 使用注册的 EntityType 创建实体，确保存档序列化和网络同步正常工作
+        DragonBreathCloud areaEffectCloud = VictusEntityTypes.DRAGON_BREATH_CLOUD.get()
+            .create(this.player.level());
+        if (areaEffectCloud == null) return false;
+
+        areaEffectCloud.moveTo(this.player.getX(), this.player.getY(), this.player.getZ());
         areaEffectCloud.setOwner(this.player);
         areaEffectCloud.setParticle(ParticleTypes.DRAGON_BREATH);
         areaEffectCloud.setRadius(2.0F);
         areaEffectCloud.setDuration(150);
-        areaEffectCloud.setRadiusPerTick((7.0F - areaEffectCloud.getRadius()) / (float)areaEffectCloud.getDuration());
-        
+        areaEffectCloud.setRadiusPerTick((7.0F - areaEffectCloud.getRadius()) / (float) areaEffectCloud.getDuration());
+
         areaEffectCloud.addEffect(new MobEffectInstance(MobEffects.WITHER, 60, 1));
-        
+
         this.player.level().addFreshEntity(areaEffectCloud);
-        
+
         return false;
     }
 }

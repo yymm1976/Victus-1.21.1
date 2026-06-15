@@ -3,7 +3,6 @@ package com.ming.victus.hearts.content;
 import com.ming.victus.VictusMain;
 import com.ming.victus.hearts.HeartAspect;
 import com.ming.victus.item.VictusItems;
-import net.minecraft.client.Minecraft;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
@@ -23,7 +22,12 @@ public class TotemAspect extends HeartAspect {
         0, 3000, 0xFFD2AD, HeartAspect.NEVER_UPDATE, TotemAspect::new
     );
 
-    private boolean hadTotem = false;
+    /**
+     * 记录本次破碎时是否消耗了图腾。
+     * 该值在 handleBreak() 中立即更新，决定后续充能时间：
+     * 有图腾 → 40 tick（2秒快速充能），无图腾 → 3000 tick（150秒标准充能）。
+     */
+    private boolean lastBreakHadTotem = false;
 
     public TotemAspect(Player player) {
         super(player, TYPE);
@@ -37,10 +41,10 @@ public class TotemAspect extends HeartAspect {
         int removed = inventory.clearOrCountMatchingItems(stack -> stack.is(Items.TOTEM_OF_UNDYING), 1, this.player.inventoryMenu.getCraftSlots());
         if (removed > 0) {
             this.player.setHealth(this.player.getHealth() + 15.0F);
-            this.hadTotem = true;
+            this.lastBreakHadTotem = true;
         } else {
             this.player.setHealth(this.player.getHealth() + 5.0F);
-            this.hadTotem = false;
+            this.lastBreakHadTotem = false;
         }
 
         this.player.level().playSound(null, this.player.getX(), this.player.getY(), this.player.getZ(),
@@ -51,24 +55,24 @@ public class TotemAspect extends HeartAspect {
 
     @Override
     public int getRechargeDuration() {
-        return this.hadTotem ? 40 : getType().standardRechargeDuration();
+        return this.lastBreakHadTotem ? 40 : getType().standardRechargeDuration();
     }
 
     @Override
     protected void readCustomData(CompoundTag nbt) {
-        this.hadTotem = nbt.getBoolean("HadTotem");
+        this.lastBreakHadTotem = nbt.getBoolean("HadTotem");
     }
 
     @Override
     protected void writeCustomData(CompoundTag nbt) {
-        nbt.putBoolean("HadTotem", this.hadTotem);
+        nbt.putBoolean("HadTotem", this.lastBreakHadTotem);
     }
 
     @Override
     @OnlyIn(Dist.CLIENT)
     @SuppressWarnings("null")
     protected void handleBreakClient() {
-        Minecraft.getInstance().gameRenderer.displayItemActivation(new ItemStack(VictusItems.TOTEM_HEART_ASPECT.get()));
-        Minecraft.getInstance().particleEngine.createTrackingEmitter(this.player, ParticleTypes.TOTEM_OF_UNDYING, 30);
+        net.minecraft.client.Minecraft.getInstance().gameRenderer.displayItemActivation(new ItemStack(VictusItems.TOTEM_HEART_ASPECT.get()));
+        net.minecraft.client.Minecraft.getInstance().particleEngine.createTrackingEmitter(this.player, ParticleTypes.TOTEM_OF_UNDYING, 30);
     }
 }

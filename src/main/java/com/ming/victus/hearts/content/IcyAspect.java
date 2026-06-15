@@ -24,7 +24,14 @@ public class IcyAspect extends HeartAspect {
         java.util.List<net.minecraft.world.entity.LivingEntity> entities = this.player.level().getEntitiesOfClass(
             net.minecraft.world.entity.LivingEntity.class, 
             this.player.getBoundingBox().inflate(6.0D), 
-            entity -> entity != this.player && entity.isAlive()
+            entity -> {
+                if (entity == this.player || !entity.isAlive()) return false;
+                // 排除玩家驯服的动物
+                if (entity instanceof net.minecraft.world.entity.TamableAnimal tamable) {
+                    return !tamable.isOwnedBy(this.player);
+                }
+                return true;
+            }
         );
         for (net.minecraft.world.entity.LivingEntity entity : entities) {
             entity.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, 300, 2, true, false));

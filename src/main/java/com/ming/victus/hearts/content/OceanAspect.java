@@ -48,7 +48,7 @@ public class OceanAspect extends HeartAspect {
     public boolean handleBreak(DamageSource source, float damage, float originalHealth) {
         this.player.addEffect(new MobEffectInstance(MobEffects.DOLPHINS_GRACE, 600, 0));
         this.player.addEffect(new MobEffectInstance(MobEffects.CONDUIT_POWER, 600, 0));
-        return true;
+        return false; // 纯服务端效果，无需客户端回调
     }
 
     @Override

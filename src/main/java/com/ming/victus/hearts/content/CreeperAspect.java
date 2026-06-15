@@ -30,7 +30,12 @@ public class CreeperAspect extends HeartAspect {
                 new ExplosionDamageCalculator() {
                     @Override
                     public boolean shouldDamageEntity(Explosion explosion, Entity entity) {
-                        return entity != CreeperAspect.this.player;
+                        if (entity == CreeperAspect.this.player) return false;
+                        // 排除玩家驯服的动物
+                        if (entity instanceof net.minecraft.world.entity.TamableAnimal tamable) {
+                            return !tamable.isOwnedBy(CreeperAspect.this.player);
+                        }
+                        return true;
                     }
                 },
                 this.player.getX(), this.player.getY(), this.player.getZ(),

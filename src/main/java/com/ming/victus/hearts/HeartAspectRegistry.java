@@ -1,34 +1,54 @@
 package com.ming.victus.hearts;
 
+import com.ming.victus.hearts.content.ArcheryAspect;
+import com.ming.victus.hearts.content.BlazingAspect;
+import com.ming.victus.hearts.content.BundleAspect;
+import com.ming.victus.hearts.content.CheeseAspect;
+import com.ming.victus.hearts.content.CreeperAspect;
+import com.ming.victus.hearts.content.DiamondAspect;
+import com.ming.victus.hearts.content.DraconicAspect;
+import com.ming.victus.hearts.content.EmeraldAspect;
+import com.ming.victus.hearts.content.EvokingAspect;
+import com.ming.victus.hearts.content.GoldenAspect;
+import com.ming.victus.hearts.content.GrilledAspect;
+import com.ming.victus.hearts.content.IcyAspect;
+import com.ming.victus.hearts.content.IronAspect;
+import com.ming.victus.hearts.content.LapisAspect;
+import com.ming.victus.hearts.content.LightAspect;
+import com.ming.victus.hearts.content.OceanAspect;
+import com.ming.victus.hearts.content.PotionAspect;
+import com.ming.victus.hearts.content.SweetAspect;
+import com.ming.victus.hearts.content.TotemAspect;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 public class HeartAspectRegistry {
-    private static final Map<ResourceLocation, HeartAspect.Type> REGISTRY = new HashMap<>();
+    /** 使用 LinkedHashMap 保证注册顺序，便于按序遍历（如 UI 显示） */
+    private static final Map<ResourceLocation, HeartAspect.Type> REGISTRY = new LinkedHashMap<>();
 
     public static void registerDefaults() {
-        register(com.ming.victus.hearts.content.GrilledAspect.TYPE);
-        register(com.ming.victus.hearts.content.BundleAspect.TYPE);
-        register(com.ming.victus.hearts.content.CreeperAspect.TYPE);
-        register(com.ming.victus.hearts.content.DiamondAspect.TYPE);
-        register(com.ming.victus.hearts.content.LightAspect.TYPE);
-        register(com.ming.victus.hearts.content.OceanAspect.TYPE);
-        register(com.ming.victus.hearts.content.TotemAspect.TYPE);
-        register(com.ming.victus.hearts.content.PotionAspect.TYPE);
-        register(com.ming.victus.hearts.content.ArcheryAspect.TYPE);
-        register(com.ming.victus.hearts.content.BlazingAspect.TYPE);
-        register(com.ming.victus.hearts.content.DraconicAspect.TYPE);
-        register(com.ming.victus.hearts.content.EmeraldAspect.TYPE);
-        register(com.ming.victus.hearts.content.EvokingAspect.TYPE);
-        register(com.ming.victus.hearts.content.GoldenAspect.TYPE);
-        register(com.ming.victus.hearts.content.IcyAspect.TYPE);
-        register(com.ming.victus.hearts.content.IronAspect.TYPE);
-        register(com.ming.victus.hearts.content.LapisAspect.TYPE);
-        register(com.ming.victus.hearts.content.SweetAspect.TYPE);
-        register(com.ming.victus.hearts.content.CheeseAspect.TYPE);
+        register(GrilledAspect.TYPE);
+        register(BundleAspect.TYPE);
+        register(CreeperAspect.TYPE);
+        register(DiamondAspect.TYPE);
+        register(LightAspect.TYPE);
+        register(OceanAspect.TYPE);
+        register(TotemAspect.TYPE);
+        register(PotionAspect.TYPE);
+        register(ArcheryAspect.TYPE);
+        register(BlazingAspect.TYPE);
+        register(DraconicAspect.TYPE);
+        register(EmeraldAspect.TYPE);
+        register(EvokingAspect.TYPE);
+        register(GoldenAspect.TYPE);
+        register(IcyAspect.TYPE);
+        register(IronAspect.TYPE);
+        register(LapisAspect.TYPE);
+        register(SweetAspect.TYPE);
+        register(CheeseAspect.TYPE);
     }
 
     public static void register(HeartAspect.Type type) {
@@ -37,7 +57,8 @@ public class HeartAspectRegistry {
     }
 
     public static HeartAspect forId(ResourceLocation id, Player holder) {
-        if (!REGISTRY.containsKey(id)) return null;
-        return REGISTRY.get(id).factory().apply(holder);
+        HeartAspect.Type type = REGISTRY.get(id);
+        if (type == null) return null;
+        return type.factory().apply(holder);
     }
 }

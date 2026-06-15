@@ -22,6 +22,14 @@ public class IronAspect extends HeartAspect {
     @Override
     @SuppressWarnings("null")
     public boolean handleBreak(DamageSource source, float damage, float originalHealth) {
+        // 限制该玩家的铁傀儡数量上限为 2，避免频繁受伤时产生过多实体
+        long existingGolems = this.player.level().getEntitiesOfClass(
+            IronGolem.class, this.player.getBoundingBox().inflate(16.0D),
+            e -> e.isAlive() && e.getPersistentData().hasUUID("VictusOwner")
+                && this.player.getUUID().equals(e.getPersistentData().getUUID("VictusOwner"))
+        ).size();
+        if (existingGolems >= 2) return false;
+
         IronGolem golem = EntityType.IRON_GOLEM.create(this.player.level());
         if (golem != null) {
             golem.setPlayerCreated(true);

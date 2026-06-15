@@ -3,12 +3,13 @@ package com.ming.victus.hearts;
 import com.ming.victus.VictusMain;
 import com.ming.victus.capability.VictusAttachments;
 import com.ming.victus.item.HeartAspectItem;
-import net.minecraft.client.Minecraft;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.Items;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
 
@@ -20,6 +21,8 @@ public class HeartAspect {
     public static final Predicate<HeartAspect> IS_NOT_ACTIVE = heartAspect -> !heartAspect.active();
 
     public static final ResourceLocation HEART_ATLAS_TEXTURE = ResourceLocation.fromNamespaceAndPath(VictusMain.MOD_ID, "textures/gui/hearts.png");
+    /** 心形纹理图集的尺寸（像素），当前支持 8×8 = 64 个纹理槽位 */
+    public static final int ATLAS_SIZE = 64;
 
     protected static final Predicate<Player> NEVER_UPDATE = p -> false;
     protected static final Predicate<Player> ALWAYS_UPDATE = p -> true;
@@ -54,9 +57,11 @@ public class HeartAspect {
 
     public void tick() {
         if (this.cooldown > -1) this.cooldown -= 1;
+        // 使用独立 if 而非 else-if，确保 cooldown 递减到 -1 的同一 tick 也能执行 update
         if (this.cooldown < -1) {
             this.cooldown = -1;
-        } else if (active() && this.type.tickUpdateCondition().test(this.player)) {
+        }
+        if (active() && this.type.tickUpdateCondition().test(this.player)) {
             update();
         }
     }
@@ -78,7 +83,7 @@ public class HeartAspect {
     }
 
     @OnlyIn(Dist.CLIENT)
-    public static Runnable createBreakEvent(Minecraft client, int index, boolean callHandler) {
+    public static Runnable createBreakEvent(net.minecraft.client.Minecraft client, int index, boolean callHandler) {
         return () -> {
             if (client.player != null) {
                 var cap = VictusAttachments.getHearts(client.player);
@@ -144,14 +149,14 @@ public class HeartAspect {
     public Item asItem() {
         Item item = HeartAspectItem.getItem(this.type);
         if (item == null) {
-            return net.minecraft.world.item.Items.AIR;
+            return Items.AIR;
         }
         return item;
     }
 
     @SuppressWarnings("null")
-    public net.minecraft.network.chat.Component getName() {
-        return net.minecraft.network.chat.Component.translatable(this.type.translationKey());
+    public Component getName() {
+        return Component.translatable(this.type.translationKey());
     }
 
     public record Type(ResourceLocation id, int textureIndex, int standardRechargeDuration, int color, Predicate<Player> tickUpdateCondition, Function<Player, HeartAspect> factory) {

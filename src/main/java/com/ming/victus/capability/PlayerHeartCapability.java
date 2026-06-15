@@ -2,6 +2,9 @@ package com.ming.victus.capability;
 
 import com.ming.victus.hearts.HeartAspect;
 import com.ming.victus.hearts.HeartAspectRegistry;
+import com.ming.victus.network.AspectBrokenPacket;
+import com.ming.victus.network.SyncAspectsPacket;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
@@ -23,7 +26,14 @@ public class PlayerHeartCapability implements INBTSerializable<CompoundTag> {
     private final Player provider;
     private final List<HeartAspect> aspects = new ArrayList<>();
     private int rechargeBoostTicks = 0;
-    private float fractionalRecharge = 0.0F;
+    /** 整数累加器：每 4 个加速 tick 额外充能 1 tick，消除浮点精度隐患 */
+    private int fractionalRechargeTicks = 0;
+    /**
+     * 脏标记：当内部状态发生变化时设为 true，由 tick() 在每 tick 末尾统一 flush 同步，
+     * 避免在单次 tick 中多次 add/remove/damage 操作都发送完整 NBT 数据包。
+     * 外部调用方（事件处理器等）应继续使用 sync() 做即时同步。
+     */
+    private boolean dirty = false;
 
     public PlayerHeartCapability(Player provider) {
         this.provider = provider;
@@ -31,7 +41,14 @@ public class PlayerHeartCapability implements INBTSerializable<CompoundTag> {
 
     public void addRechargeBoostTicks(int ticks) {
         this.rechargeBoostTicks += ticks;
-        sync();
+        markDirty();
+    }
+
+    /**
+     * 设置脏标记，延迟到 tick() 末尾统一同步。
+     */
+    private void markDirty() {
+        this.dirty = true;
     }
 
     public List<HeartAspect> getEquippedHearts() {
@@ -45,14 +62,14 @@ public class PlayerHeartCapability implements INBTSerializable<CompoundTag> {
     public boolean addAspect(HeartAspect aspect) {
         if (this.aspects.size() >= capacity()) return false;
         this.aspects.add(aspect);
-        sync();
+        markDirty();
         return true;
     }
 
     public HeartAspect removeAspect() {
         if (this.aspects.isEmpty()) return null;
         HeartAspect removedAspect = this.aspects.remove(this.aspects.size() - 1);
-        sync();
+        markDirty();
         return removedAspect;
     }
 
@@ -75,22 +92,29 @@ public class PlayerHeartCapability implements INBTSerializable<CompoundTag> {
             int tickAmount = 1;
             if (this.rechargeBoostTicks > 0) {
                 this.rechargeBoostTicks--;
-                this.fractionalRecharge += 0.25F;
-                if (this.fractionalRecharge >= 1.0F) {
-                    tickAmount += (int) this.fractionalRecharge;
-                    this.fractionalRecharge -= (int) this.fractionalRecharge;
+                this.fractionalRechargeTicks++;
+                if (this.fractionalRechargeTicks >= 4) {
+                    tickAmount += this.fractionalRechargeTicks / 4;
+                    this.fractionalRechargeTicks %= 4;
                 }
+                markDirty();
             }
             for (int t = 0; t < tickAmount; t++) {
                 targetAspect.tick();
             }
-            
-            // If the target aspect finished charging during this tick, clear the remaining boost ticks
+
+            // 心相在本 tick 内完成充能，清除剩余加速 tick
             if (targetAspect.active()) {
                 this.rechargeBoostTicks = 0;
-                this.fractionalRecharge = 0.0F;
-                sync();
+                this.fractionalRechargeTicks = 0;
+                markDirty();
             }
+        }
+
+        // 本 tick 结束，统一 flush 脏标记为一次网络同步
+        if (this.dirty) {
+            sync();
+            this.dirty = false;
         }
     }
 
@@ -134,19 +158,24 @@ public class PlayerHeartCapability implements INBTSerializable<CompoundTag> {
     public void damageAspect(int index, DamageSource source, float damage, float originalHealth) {
         HeartAspect aspect = getAspect(index);
         if (aspect == null) return;
-        
+
+        // 仅对活跃（已激活）的心相触发破碎，避免重置正在充能中的心相进度
+        if (!aspect.active()) return;
+
         float healthAfterThisHeart = index * 2.0F;
         float currentHealth = originalHealth - damage;
-        
+
         int nextIndex = index - 1;
-        if (nextIndex >= 0 && currentHealth <= healthAfterThisHeart) {
+        // 使用严格小于（<）而非小于等于（<=），避免健康值恰好处于心相边界时多碎一颗心
+        if (nextIndex >= 0 && currentHealth < healthAfterThisHeart) {
             damageAspect(nextIndex, source, damage, originalHealth);
         }
 
         boolean callClient = aspect.onBroken(source, damage, originalHealth);
+        // damageAspect 是事件驱动的即时操作，保持 sync() 确保破碎动画立即到达客户端
         sync();
         if (this.provider instanceof ServerPlayer serverPlayer) {
-            PacketDistributor.sendToPlayer(serverPlayer, new com.ming.victus.network.AspectBrokenPacket(index, callClient));
+            PacketDistributor.sendToPlayer(serverPlayer, new AspectBrokenPacket(index, callClient));
         }
     }
 
@@ -198,24 +227,26 @@ public class PlayerHeartCapability implements INBTSerializable<CompoundTag> {
     public void sync() {
         if (this.provider instanceof ServerPlayer serverPlayer) {
             CompoundTag tag = this.serializeNBT(serverPlayer.registryAccess());
-            PacketDistributor.sendToPlayer(serverPlayer, new com.ming.victus.network.SyncAspectsPacket(tag));
+            PacketDistributor.sendToPlayer(serverPlayer, new SyncAspectsPacket(tag));
         }
     }
 
     @Override
     @SuppressWarnings("null")
-    public CompoundTag serializeNBT(@javax.annotation.Nonnull net.minecraft.core.HolderLookup.Provider provider) {
+    public CompoundTag serializeNBT(@javax.annotation.Nonnull HolderLookup.Provider provider) {
         CompoundTag tag = new CompoundTag();
         ListTag list = new ListTag();
         for (HeartAspect heart : aspects) {
             list.add(heart.toNbt());
         }
         tag.put("Aspects", list);
+        tag.putInt("RechargeBoostTicks", this.rechargeBoostTicks);
+        tag.putInt("FractionalRechargeTicks", this.fractionalRechargeTicks);
         return tag;
     }
 
     @Override
-    public void deserializeNBT(@javax.annotation.Nonnull net.minecraft.core.HolderLookup.Provider provider, @javax.annotation.Nonnull CompoundTag tag) {
+    public void deserializeNBT(@javax.annotation.Nonnull HolderLookup.Provider provider, @javax.annotation.Nonnull CompoundTag tag) {
         this.aspects.clear();
         ListTag list = tag.getList("Aspects", Tag.TAG_COMPOUND);
         for (int i = 0; i < list.size(); i++) {
@@ -229,5 +260,10 @@ public class PlayerHeartCapability implements INBTSerializable<CompoundTag> {
             aspect.readNbt(compound);
             this.aspects.add(aspect);
         }
+        this.rechargeBoostTicks = tag.getInt("RechargeBoostTicks");
+        // 兼容旧存档：优先读取新的整数键，旧版 float 键不存在时 getInt 返回 0
+        this.fractionalRechargeTicks = tag.contains("FractionalRechargeTicks", Tag.TAG_INT)
+            ? tag.getInt("FractionalRechargeTicks")
+            : 0;
     }
 }

@@ -1,23 +1,20 @@
 {
   "type": "minecraft:crafting_shaped",
   "pattern": [
-    "ëёё",
-    "ёuё",
-    "ёёë"
+    "tst",
+    "sus",
+    "tst"
   ],
   "key": {
-    "ë": {
-      "item": "minecraft:ghast_tear"
+    "s": {
+      "item": "minecraft:glistering_melon_slice"
     },
     "u": {
       "item": "victus:blank_heart_aspect"
     },
-    "ё": {
-      "item": "minecraft:glistering_melon_slice"
+    "t": {
+      "item": "minecraft:ghast_tear"
     }
   },
-  "result": { "id": "victus:bundle_heart_aspect"
-  }
+  "result": { "id": "victus:bundle_heart_aspect" }
 }
-
-
