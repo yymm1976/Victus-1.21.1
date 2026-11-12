@@ -2681,73 +2681,135 @@
   "excludedCacheFiles": [
     {
       "group": "Victus1.21.1",
+      "path": ".codegraph/.gitignore",
+      "bytes": 173,
+      "matchesSecretName": false
+    },
+    {
+      "group": "Victus1.21.1",
+      "path": ".codegraph/codegraph.db",
+      "bytes": 2146304,
+      "matchesSecretName": false
+    },
+    {
+      "group": "Victus1.21.1",
+      "path": ".codegraph/codegraph.db-shm",
+      "bytes": 32768,
+      "matchesSecretName": false
+    },
+    {
+      "group": "Victus1.21.1",
+      "path": ".codegraph/codegraph.db-wal",
+      "bytes": 4453752,
+      "matchesSecretName": false
+    },
+    {
+      "group": "Victus1.21.1",
+      "path": ".codegraph/daemon.log",
+      "bytes": 243,
+      "matchesSecretName": false
+    },
+    {
+      "group": "Victus1.21.1",
+      "path": ".codegraph/daemon.pid",
+      "bytes": 129,
+      "matchesSecretName": false
+    },
+    {
+      "group": "Victus1.21.1",
+      "path": ".codegraph/errors.log",
+      "bytes": 297,
+      "matchesSecretName": false
+    },
+    {
+      "group": "Victus1.21.1",
       "path": ".gradle/9.2.1/checksums/checksums.lock",
-      "bytes": 17
+      "bytes": 17,
+      "matchesSecretName": false
     },
     {
       "group": "Victus1.21.1",
       "path": ".gradle/9.2.1/executionHistory/executionHistory.bin",
-      "bytes": 772093
+      "bytes": 772093,
+      "matchesSecretName": false
     },
     {
       "group": "Victus1.21.1",
       "path": ".gradle/9.2.1/executionHistory/executionHistory.lock",
-      "bytes": 17
+      "bytes": 17,
+      "matchesSecretName": false
     },
     {
       "group": "Victus1.21.1",
       "path": ".gradle/9.2.1/fileChanges/last-build.bin",
-      "bytes": 1
+      "bytes": 1,
+      "matchesSecretName": false
     },
     {
       "group": "Victus1.21.1",
       "path": ".gradle/9.2.1/fileHashes/fileHashes.bin",
-      "bytes": 42947
+      "bytes": 42947,
+      "matchesSecretName": false
     },
     {
       "group": "Victus1.21.1",
       "path": ".gradle/9.2.1/fileHashes/fileHashes.lock",
-      "bytes": 17
+      "bytes": 17,
+      "matchesSecretName": false
     },
     {
       "group": "Victus1.21.1",
       "path": ".gradle/9.2.1/fileHashes/resourceHashesCache.bin",
-      "bytes": 32437
+      "bytes": 32437,
+      "matchesSecretName": false
     },
     {
       "group": "Victus1.21.1",
       "path": ".gradle/9.2.1/gc.properties",
-      "bytes": 0
+      "bytes": 0,
+      "matchesSecretName": false
     },
     {
       "group": "Victus1.21.1",
       "path": ".gradle/buildOutputCleanup/buildOutputCleanup.lock",
-      "bytes": 17
+      "bytes": 17,
+      "matchesSecretName": false
     },
     {
       "group": "Victus1.21.1",
       "path": ".gradle/buildOutputCleanup/cache.properties",
-      "bytes": 53
+      "bytes": 53,
+      "matchesSecretName": false
     },
     {
       "group": "Victus1.21.1",
       "path": ".gradle/buildOutputCleanup/outputFiles.bin",
-      "bytes": 19415
+      "bytes": 19415,
+      "matchesSecretName": false
     },
     {
       "group": "Victus1.21.1",
       "path": ".gradle/file-system.probe",
-      "bytes": 8
+      "bytes": 8,
+      "matchesSecretName": false
     },
     {
       "group": "Victus1.21.1",
       "path": ".gradle/vcs-1/gc.properties",
-      "bytes": 0
+      "bytes": 0,
+      "matchesSecretName": false
     },
     {
       "group": "Victus1.21.1",
       "path": "build/resources/main/.cache/3470853b4bef33283a72a7cce7d4092a72b83d73",
-      "bytes": 2094
+      "bytes": 2094,
+      "matchesSecretName": false
+    },
+    {
+      "group": "Victus1.21.1",
+      "path": "src/generated/resources/.cache/3470853b4bef33283a72a7cce7d4092a72b83d73",
+      "bytes": 2094,
+      "matchesSecretName": false
     }
   ],
   "links": [],
