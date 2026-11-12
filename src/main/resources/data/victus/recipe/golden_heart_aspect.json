@@ -1,0 +1,23 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "tst",
+    "sus",
+    "tst"
+  ],
+  "key": {
+    "s": {
+      "item": "minecraft:golden_apple"
+    },
+    "u": {
+      "item": "victus:blank_heart_aspect"
+    },
+    "t": {
+      "item": "minecraft:gold_ingot"
+    }
+  },
+  "result": { "id": "victus:golden_heart_aspect"
+  }
+}
+
+

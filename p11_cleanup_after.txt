@@ -1,0 +1,36 @@
+=== MODIFIED ===
+  .github/workflows/json_validation.yml
+  src/main/java/com/ming/victus/capability/PlayerHeartCapability.java
+  src/main/java/com/ming/victus/client/VictusClientPackets.java
+  src/main/java/com/ming/victus/datagen/DataGenerators.java
+  src/main/java/com/ming/victus/event/VictusEvents.java
+  src/main/java/com/ming/victus/hearts/HeartAspect.java
+  src/main/java/com/ming/victus/hearts/content/PotionAspect.java
+  src/main/java/com/ming/victus/test/VictusGameTests.java
+  src/main/resources/assets/victus/lang/en_us.json
+  src/main/resources/assets/victus/lang/zh_cn.json
+
+=== DELETED (3) ===
+  src/main/java/com/ming/victus/datagen/VictusRecipeProvider.java
+  src/main/resources/assets/victus/textures/gui/journal_hearts.png
+  src/main/resources/assets/victus/textures/item/victus_journal.png
+
+=== UNTRACKED (2) ===
+  src/main/resources/data/victus/structures/empty.nbt
+  src/main/resources/victus.png
+
+TOTAL M=10 D=3 U=2
+
+=== Leftover p10r/p11 scripts/outputs ===
+  p11_cleanup_after.txt
+  p11_cleanup_status_after.py
+  p11_deleted_files.txt
+  p11_deleted_files_2.txt
+  p11_diffstat.txt
+  p11_events_diff.txt
+
+=== Key assets ===
+  src/main/resources/victus.png: EXISTS
+  src/main/resources/data/victus/structures/empty.nbt: EXISTS
+  src/main/java/com/ming/victus/test/VictusGameTests.java: EXISTS
+  src/main/resources/data/victus/gameteststructures/empty.snbt: ABSENT

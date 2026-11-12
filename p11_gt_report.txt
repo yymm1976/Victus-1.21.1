@@ -1,0 +1,18 @@
+File size: 67942 bytes
+All 7 required tests passed: True
+[+++++++] present: True
+No test functions were given: False
+Missing test structure: False
+FAILED: False
+BUILD SUCCESSFUL: True
+--- Last 10 lines ---
+  [20:39:16] [Server thread/INFO] [minecraft/MinecraftServer]: ThreadedAnvilChunkStorage (world): All chunks are saved
+  [20:39:16] [Server thread/INFO] [minecraft/MinecraftServer]: ThreadedAnvilChunkStorage (DIM1): All chunks are saved
+  [20:39:16] [Server thread/INFO] [minecraft/MinecraftServer]: ThreadedAnvilChunkStorage (DIM-1): All chunks are saved
+  [20:39:16] [Server thread/INFO] [minecraft/MinecraftServer]: ThreadedAnvilChunkStorage: All dimensions are saved
+  [20:39:16] [Server thread/DEBUG] [ne.ne.fm.co.ConfigTracker/CONFIG]: Unloading configs type SERVER
+  [20:39:16] [Server thread/INFO] [minecraft/GameTestServer]: Game test server shutting down
+  
+  BUILD SUCCESSFUL in 21s
+  8 actionable tasks: 1 executed, 7 up-to-date
+  

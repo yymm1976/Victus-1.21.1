@@ -1,0 +1,37 @@
+# IDE
+out
+*.ipr
+*.iws
+*.iml
+.idea
+.vscode
+.eclipse
+
+# Build
+build
+bin
+.gradle
+
+# Runtime
+run
+runs
+run-server
+run-data
+
+# Repo
+repo
+
+# Temporary / generated files
+*.txt
+*.log
+*.py
+*.js
+*.class
+*.md
+src/generated/resources/.cache/
+
+# Keep essential files (override above patterns)
+!README.md
+!gradle.properties
+!build.gradle.kts
+!settings.gradle.kts

@@ -1,0 +1,15 @@
+Jar: build/libs/victus-1.21.1-1.0.1.jar
+Size: 137657 bytes
+
+  [PASS] victus.png exists
+  [PASS] recipes=21 (expected 21)
+  [PASS] item textures=22 (expected 22)
+  [PASS] VictusGameTests.class exists
+  [PASS] empty.nbt exists
+  [PASS] empty.snbt absent
+  [PASS] VictusRecipeProvider.class absent
+  [PASS] RemoveFirstAspectPacket classes=0 (expected 0)
+  [PASS] victus_journal.png absent
+  [PASS] journal_hearts.png absent
+
+Overall: PASS

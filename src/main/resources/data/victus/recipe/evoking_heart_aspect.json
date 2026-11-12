@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "tst",
+    "sus",
+    "tst"
+  ],
+  "key": {
+    "s": {
+      "item": "minecraft:totem_of_undying"
+    },
+    "u": {
+      "item": "victus:blank_heart_aspect"
+    },
+    "t": {
+      "item": "minecraft:emerald"
+    }
+  },
+  "result": { "id": "victus:evoking_heart_aspect" }
+}

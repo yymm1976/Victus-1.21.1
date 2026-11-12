@@ -1,0 +1,10 @@
+File size: 744 bytes
+BUILD SUCCESSFUL: True
+BUILD FAILED: False
+Warning count: 0
+--- Last 5 lines ---
+  > Task :build
+  
+  BUILD SUCCESSFUL in 7s
+  5 actionable tasks: 2 executed, 3 up-to-date
+  

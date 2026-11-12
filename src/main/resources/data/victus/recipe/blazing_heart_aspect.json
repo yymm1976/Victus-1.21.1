@@ -1,0 +1,23 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "tst",
+    "sus",
+    "tst"
+  ],
+  "key": {
+    "s": {
+      "item": "minecraft:magma_cream"
+    },
+    "u": {
+      "item": "victus:blank_heart_aspect"
+    },
+    "t": {
+      "item": "minecraft:blaze_rod"
+    }
+  },
+  "result": { "id": "victus:blazing_heart_aspect"
+  }
+}
+
+

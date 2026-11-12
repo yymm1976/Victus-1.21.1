@@ -1,0 +1,160 @@
+package com.ming.victus.hearts.content;
+
+import com.ming.victus.VictusMain;
+import com.ming.victus.hearts.HeartAspect;
+import com.ming.victus.hearts.OverlaySpriteProvider;
+import net.minecraft.core.Holder;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.Tag;
+import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.alchemy.Potion;
+import net.minecraft.world.item.alchemy.PotionContents;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+
+public class PotionAspect extends HeartAspect implements OverlaySpriteProvider {
+    public static final HeartAspect.Type TYPE = new HeartAspect.Type(
+        ResourceLocation.fromNamespaceAndPath(VictusMain.MOD_ID, "potion"),
+        6, 50, 0xE95EF1, HeartAspect.ALWAYS_UPDATE, PotionAspect::new
+    );
+
+    private Optional<Holder<Potion>> potion = Optional.empty();
+    private final List<MobEffectInstance> customEffects = new ArrayList<>();
+
+    public PotionAspect(Player player) {
+        super(player, TYPE);
+    }
+
+    public Optional<Holder<Potion>> getPotion() {
+        return this.potion;
+    }
+
+    public void setPotion(Optional<Holder<Potion>> potion) {
+        this.potion = potion;
+    }
+
+    public List<MobEffectInstance> getCustomEffects() {
+        return this.customEffects;
+    }
+
+    @Override
+    @SuppressWarnings("null")
+    public boolean handleBreak(DamageSource source, float damage, float originalHealth) {
+        // 施加基础药水类型的效果
+        if (this.potion.isPresent()) {
+            for (MobEffectInstance instance : this.potion.get().value().getEffects()) {
+                applyEffect(instance);
+            }
+        }
+        // 施加自定义效果（来自模组药水或命令添加的额外效果）
+        for (MobEffectInstance instance : this.customEffects) {
+            applyEffect(instance);
+        }
+        return false;
+    }
+
+    private void applyEffect(MobEffectInstance instance) {
+        if (instance.getEffect().value().isInstantenous()) {
+            // 1.21.x 中 applyInstantenousEffect 要求目标参数为 @Nonnull LivingEntity，
+            // 而 this.player 字段在父类中声明为普通 Player（未加 @Nonnull），IDE 会报 null 安全警告。
+            // 此处通过 Objects.requireNonNull 消除警告，同时保持运行时安全性。
+            instance.getEffect().value().applyInstantenousEffect(
+                this.player,
+                this.player,
+                java.util.Objects.requireNonNull(this.player, "player"),
+                instance.getAmplifier(),
+                1.0D
+            );
+        } else {
+            this.player.addEffect(new MobEffectInstance(instance));
+        }
+    }
+
+    @Override
+    @SuppressWarnings("null")
+    protected void readCustomData(CompoundTag nbt) {
+        ResourceLocation id = ResourceLocation.tryParse(nbt.getString("Potion"));
+        if (id != null && !id.getPath().equals("empty")) {
+            this.potion = BuiltInRegistries.POTION.getHolder(id).map(h -> h);
+        } else {
+            this.potion = Optional.empty();
+        }
+        // 读取自定义效果列表
+        this.customEffects.clear();
+        if (nbt.contains("CustomEffects", Tag.TAG_LIST)) {
+            ListTag list = nbt.getList("CustomEffects", Tag.TAG_COMPOUND);
+            for (int i = 0; i < list.size(); i++) {
+                CompoundTag effectTag = list.getCompound(i);
+                MobEffectInstance effect = MobEffectInstance.load(effectTag);
+                if (effect != null) {
+                    this.customEffects.add(effect);
+                }
+            }
+        }
+    }
+
+    @Override
+    @SuppressWarnings("null")
+    protected void writeCustomData(CompoundTag nbt) {
+        nbt.putString("Potion", this.potion.flatMap(Holder::unwrapKey).map(key -> key.location().toString()).orElse("minecraft:empty"));
+        // 写入自定义效果列表
+        if (!this.customEffects.isEmpty()) {
+            ListTag list = new ListTag();
+            for (MobEffectInstance effect : this.customEffects) {
+                // 1.21.x 中 save() 不再接受参数，直接返回 CompoundTag
+                list.add(effect.save());
+            }
+            nbt.put("CustomEffects", list);
+        }
+    }
+
+    @Override
+    public int getOverlayIndex() {
+        return 8;
+    }
+
+    @Override
+    public boolean shouldRenderOverlay() {
+        // 无药水时不渲染覆盖层，避免绘制白色覆盖
+        return this.potion.isPresent();
+    }
+
+    /**
+     * 心相显示名：未绑定时显示"药水之心（未绑定）"，已绑定时显示"药水之心（&lt;药水名&gt;）"。
+     *
+     * <p>原实现继承自 {@link HeartAspect#getName()}，固定返回
+     * {@code "item.victus.potion"} = "Potion Heart" / "药水之心"，与 PotionAspect 设计意图
+     * （"承载具体药水效果"）冲突——玩家无法在 HUD 中区分"治疗药水之心"和"再生药水之心"。</p>
+     *
+     * <p>Phase 5 修复：{@link HeartAspect.Type#translationKey()} 现在已统一追加
+     * {@code _heart_aspect} 后缀（{@code victus:potion} → {@code item.victus.potion_heart_aspect}），
+     * 故本方法直接基于 {@link #getType()} 的 translationKey() 拼接 {@code .bound / .unbound} 子键，
+     * 避免硬编码 lang key。</p>
+     */
+    @Override
+    public Component getName() {
+        String baseKey = this.getType().translationKey();
+        if (this.potion.isEmpty()) {
+            return Component.translatable(baseKey + ".unbound");
+        }
+        // Potion.getName(Optional<Holder<Potion>>, String) 返回 lang key 形如 "potion.effect.healing"，
+        // 传入 Component.translatable 后由 en_us/zh_cn 解析显示本地化药水名。
+        String potionName = Potion.getName(this.potion, "potion.effect.");
+        return Component.translatable(baseKey + ".bound", Component.translatable(potionName));
+    }
+
+    @Override
+    @SuppressWarnings("null")
+    public int getOverlayTint() {
+        if (this.potion.isEmpty()) return 0xFFFFFF;
+        return PotionContents.getColor(this.potion.get().value().getEffects());
+    }
+}

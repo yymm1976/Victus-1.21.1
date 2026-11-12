@@ -1,0 +1,10 @@
+Deleted 9 helper/output files:
+  p11_build_reader.py
+  p11_cleanup_status_after.py
+  p11_final_cleanup.py
+  p11_gt_reader.py
+  p11_jar_final.py
+  p11_build_final.txt
+  p11_diffstat.txt
+  p11_events_diff.txt
+  p11_gt_final.txt

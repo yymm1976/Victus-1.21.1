@@ -1,0 +1,22 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "tst",
+    "sus",
+    "tst"
+  ],
+  "key": {
+    "s": {
+      "item": "minecraft:chorus_fruit"
+    },
+    "u": {
+      "item": "victus:blank_heart_aspect"
+    },
+    "t": {
+      "item": "minecraft:end_stone"
+    }
+  },
+  "result": {
+    "id": "victus:void_heart_aspect"
+  }
+}

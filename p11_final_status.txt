@@ -1,0 +1,16 @@
+﻿ M .github/workflows/json_validation.yml
+ M src/main/java/com/ming/victus/capability/PlayerHeartCapability.java
+ M src/main/java/com/ming/victus/client/VictusClientPackets.java
+ M src/main/java/com/ming/victus/datagen/DataGenerators.java
+ D src/main/java/com/ming/victus/datagen/VictusRecipeProvider.java
+ M src/main/java/com/ming/victus/event/VictusEvents.java
+ M src/main/java/com/ming/victus/hearts/HeartAspect.java
+ M src/main/java/com/ming/victus/hearts/content/PotionAspect.java
+ M src/main/java/com/ming/victus/test/VictusGameTests.java
+ M src/main/resources/assets/victus/lang/en_us.json
+ M src/main/resources/assets/victus/lang/zh_cn.json
+ D src/main/resources/assets/victus/textures/gui/journal_hearts.png
+ D src/main/resources/assets/victus/textures/item/victus_journal.png
+?? src/main/resources/data/victus/structures/empty.nbt
+?? src/main/resources/victus.png
+

@@ -1,0 +1,99 @@
+name: Validate JSON and Build
+
+on:
+  push:
+    paths:
+      - '**/*.json'
+      - '**/*.java'
+      - '**/*.kts'
+      - '**/*.gradle'
+      - '**/*.properties'
+      - '**/*.toml'
+      - '**/*.png'
+      - 'gradle/**'
+      - 'gradlew'
+      - 'gradlew.bat'
+      - 'src/main/resources/**'
+      - 'src/main/templates/**'
+      - '.github/workflows/**'
+  pull_request:
+    paths:
+      - '**/*.json'
+      - '**/*.java'
+      - '**/*.kts'
+      - '**/*.gradle'
+      - '**/*.properties'
+      - '**/*.toml'
+      - '**/*.png'
+      - 'gradle/**'
+      - 'gradlew'
+      - 'gradlew.bat'
+      - 'src/main/resources/**'
+      - 'src/main/templates/**'
+      - '.github/workflows/**'
+
+jobs:
+  validate-json:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Validate JSON formatting
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y jq
+          find . -name "*.json" -type f -print0 | while IFS= read -r -d '' file; do
+            jq empty "$file" || exit 1
+          done
+
+  gradle-build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
+
+      - name: Build with Gradle
+        run: ./gradlew build --no-daemon
+
+      - name: Run GameTest Server
+        run: |
+          set -o pipefail
+          ./gradlew runGameTestServer --no-daemon --console=plain 2>&1 | tee gametest.log
+
+      - name: Verify GameTest executed 7 tests
+        run: |
+          # Fail if GameTest system reported no tests discovered.
+          if grep -q "No test functions were given" gametest.log; then
+            echo "ERROR: GameTest system reported no test functions were given."
+            exit 1
+          fi
+          # Fail if any test failed (Missing test structure, MissingStructure, etc.)
+          if grep -q "Missing test structure" gametest.log; then
+            echo "ERROR: GameTest could not find a registered test structure."
+            exit 1
+          fi
+          if grep -q "FAILED" gametest.log; then
+            echo "ERROR: At least one GameTest reported FAILED."
+            exit 1
+          fi
+          # Confirm progress line shows all 7 tests passed: [+++++++]
+          if ! grep -q "\[+++++++\]" gametest.log; then
+            echo "ERROR: Expected progress line '[+++++++]' (7/7 passed) not found in gametest.log."
+            exit 1
+          fi
+          # Confirm the official pass summary is present.
+          if ! grep -q "All 7 required tests passed" gametest.log; then
+            echo "ERROR: Expected summary 'All 7 required tests passed' not found in gametest.log."
+            exit 1
+          fi
+          echo "GameTest verification: 7/7 tests passed."

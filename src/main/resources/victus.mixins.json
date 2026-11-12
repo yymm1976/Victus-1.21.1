@@ -1,0 +1,16 @@
+{
+  "required": true,
+  "package": "com.ming.victus.mixin",
+  "compatibilityLevel": "JAVA_21",
+  "mixins": [],
+  "client": [
+    "InGameHudMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  },
+  "overwrites": {
+    "requireAnnotations": true
+  },
+  "minVersion": "0.8.0"
+}
